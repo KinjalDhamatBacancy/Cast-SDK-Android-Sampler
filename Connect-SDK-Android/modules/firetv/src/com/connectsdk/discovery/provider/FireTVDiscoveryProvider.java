@@ -24,6 +24,7 @@ import android.content.Context;
 
 import com.amazon.whisperplay.fling.media.controller.DiscoveryController;
 import com.amazon.whisperplay.fling.media.controller.RemoteMediaPlayer;
+import com.connectsdk.LogPrint;
 import com.connectsdk.core.Util;
 import com.connectsdk.discovery.DiscoveryFilter;
 import com.connectsdk.discovery.DiscoveryProvider;
@@ -65,6 +66,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     }
 
     public FireTVDiscoveryProvider(DiscoveryController discoveryController) {
+        LogPrint.appendLog("FireTVDiscoveryProvider con");
+
         this.discoveryController = discoveryController;
         this.fireTVListener = new FireTVDiscoveryListener();
     }
@@ -75,6 +78,7 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     @Override
     public void start() {
         if (!isRunning) {
+            LogPrint.appendLog("FireTVDiscoveryProvider start");
             discoveryController.start(fireTVListener);
             isRunning = true;
         }
@@ -87,6 +91,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     @Override
     public void stop() {
         if (isRunning) {
+            LogPrint.appendLog("FireTVDiscoveryProvider stop");
+
             discoveryController.stop();
             isRunning = false;
         }
@@ -101,6 +107,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
      */
     @Override
     public void restart() {
+        LogPrint.appendLog("FireTVDiscoveryProvider restart");
+
         stop();
         start();
     }
@@ -119,17 +127,21 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
      */
     @Override
     public void reset() {
+        LogPrint.appendLog("FireTVDiscoveryProvider reset");
+
         foundServices.clear();
         stop();
     }
 
     @Override
     public void addListener(DiscoveryProviderListener listener) {
+        LogPrint.appendLog("FireTVDiscoveryProvider addListener");
         serviceListeners.add(listener);
     }
 
     @Override
     public void removeListener(DiscoveryProviderListener listener) {
+        LogPrint.appendLog("FireTVDiscoveryProvider removeListener");
         serviceListeners.remove(listener);
     }
 
@@ -163,6 +175,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     }
 
     private void notifyListenersThatServiceAdded(final ServiceDescription serviceDescription) {
+        LogPrint.appendLog("FireTVDiscoveryProvider notifyListenersThatServiceAdded "+serviceDescription);
+
         Util.runOnUI(new Runnable() {
             @Override
             public void run() {
@@ -174,6 +188,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     }
 
     private void notifyListenersThatServiceLost(final ServiceDescription serviceDescription) {
+        LogPrint.appendLog("FireTVDiscoveryProvider notifyListenersThatServiceLost " +serviceDescription);
+
         Util.runOnUI(new Runnable() {
             @Override
             public void run() {
@@ -185,6 +201,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
     }
 
     private void notifyListenersThatDiscoveryFailed(final ServiceCommandError error) {
+        LogPrint.appendLog("FireTVDiscoveryProvider notifyListenersThatDiscoveryFailed "+error);
+
         Util.runOnUI(new Runnable() {
             @Override
             public void run() {
@@ -200,6 +218,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
 
         @Override
         public void playerDiscovered(RemoteMediaPlayer remoteMediaPlayer) {
+            LogPrint.appendLog("FireTVDiscoveryProvider playerDiscovered "+remoteMediaPlayer);
+
             if (remoteMediaPlayer == null) {
                 return;
             }
@@ -218,6 +238,8 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
 
         @Override
         public void playerLost(RemoteMediaPlayer remoteMediaPlayer) {
+            LogPrint.appendLog("FireTVDiscoveryProvider playerLost "+remoteMediaPlayer);
+
             if (remoteMediaPlayer == null) {
                 return;
             }
@@ -232,11 +254,15 @@ public class FireTVDiscoveryProvider implements DiscoveryProvider {
         @Override
         public void discoveryFailure() {
             final ServiceCommandError error = new ServiceCommandError("FireTV discovery failure");
+            LogPrint.appendLog("FireTVDiscoveryProvider discoveryFailure "+error);
+
             notifyListenersThatDiscoveryFailed(error);
         }
 
         private void updateServiceDescription(ServiceDescription serviceDescription,
                                               RemoteMediaPlayer remoteMediaPlayer) {
+            LogPrint.appendLog("FireTVDiscoveryProvider updateServiceDescription "+serviceDescription + " p "+remoteMediaPlayer);
+
             String uid = remoteMediaPlayer.getUniqueIdentifier();
             serviceDescription.setDevice(remoteMediaPlayer);
             serviceDescription.setFriendlyName(remoteMediaPlayer.getName());

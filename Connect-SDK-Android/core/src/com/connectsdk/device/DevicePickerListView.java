@@ -24,6 +24,7 @@ import android.content.Context;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.connectsdk.LogPrint;
 import com.connectsdk.core.Util;
 import com.connectsdk.discovery.DiscoveryManager;
 import com.connectsdk.discovery.DiscoveryManagerListener;
@@ -34,6 +35,7 @@ public class DevicePickerListView extends ListView implements DiscoveryManagerLi
 
     public DevicePickerListView(Context context) {
         super(context);
+        LogPrint.appendLog("DevicePickerListView ");
 
         pickerAdapter = new DevicePickerAdapter(context);
 
@@ -44,6 +46,8 @@ public class DevicePickerListView extends ListView implements DiscoveryManagerLi
 
     @Override
     public void onDiscoveryFailed(DiscoveryManager manager, ServiceCommandError error) {
+        LogPrint.appendLog("DevicePickerListView onDiscoveryFailed "+error);
+
         Util.runOnUI(new Runnable () {
             @Override
             public void run() {
@@ -54,6 +58,7 @@ public class DevicePickerListView extends ListView implements DiscoveryManagerLi
 
     @Override
     public void onDeviceAdded(final DiscoveryManager manager, final ConnectableDevice device) {
+        LogPrint.appendLog("DevicePickerListView onDeviceAdded "+device);
 
         Util.runOnUI(new Runnable () {
             @Override

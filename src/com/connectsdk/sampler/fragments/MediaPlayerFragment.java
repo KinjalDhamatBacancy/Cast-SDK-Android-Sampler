@@ -60,7 +60,7 @@ public class MediaPlayerFragment extends BaseFragment {
     public static final String URL_SUBTITLES_WEBVTT = "http://connectsdk.com/ConnectSDK.vtt";
     public static final String URL_SUBTITLE_SRT = "http://connectsdk.com/ConnectSDK.srt";
     //    public static final String URL_VIDEO_MP4 = "http://connectsdk.com/ConnectSDK.mp4";
-    public static String URL_VIDEO_MP4 = "http://d1fb1b55vzzqwl.cloudfront.net/en-us/torahclass/video/ot/genesis/video-genesis-l07-ch6-ch7.mp4";
+    public static String URL_VIDEO_MP4 = " ";
     public static final String URL_IMAGE_ICON = "http://connectsdk.com/ConnectSDK_Logo.jpg";
 
     //    public Button photoButton;

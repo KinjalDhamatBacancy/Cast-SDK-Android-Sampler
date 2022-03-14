@@ -28,6 +28,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.connectsdk.LogPrint;
+
 /**
  * ###Overview
  * The DevicePicker is provided by the DiscoveryManager as a simple way for you to present a list of available devices to your users.
@@ -78,6 +80,8 @@ public class DevicePicker {
      * @param listener The listener for the ListView to get the item that was clicked on
      */
     public AlertDialog getPickerDialog(String message, final OnItemClickListener listener) {
+        LogPrint.appendLog("DevicePicker getPickerDialog ");
+
         final DevicePickerListView view = new DevicePickerListView(activity);
 
         TextView title = (TextView) activity.getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);

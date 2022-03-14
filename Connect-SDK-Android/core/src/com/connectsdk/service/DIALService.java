@@ -1,10 +1,10 @@
 /*
  * DIALService
  * Connect SDK
- * 
+ *
  * Copyright (c) 2014 LG Electronics.
  * Created by Hyun Kook Khang on 24 Jan 2014
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@ package com.connectsdk.service;
 
 import android.util.Log;
 
+import com.connectsdk.LogPrint;
 import com.connectsdk.core.AppInfo;
 import com.connectsdk.core.Util;
 import com.connectsdk.discovery.DiscoveryFilter;
@@ -64,6 +65,7 @@ public class DIALService extends DeviceService implements Launcher {
     }
 
     public static void registerApp(String appId) {
+        LogPrint.appendLog("registerApp");
         if (!registeredApps.contains(appId))
             registeredApps.add(appId);
     }
@@ -89,7 +91,7 @@ public class DIALService extends DeviceService implements Launcher {
     public void setServiceDescription(ServiceDescription serviceDescription) {
         super.setServiceDescription(serviceDescription);
 
-        Map<String, List<String>> responseHeaders = this.getServiceDescription().getResponseHeaders(); 
+        Map<String, List<String>> responseHeaders = this.getServiceDescription().getResponseHeaders();
 
         if (responseHeaders != null) {
             String commandPath;
@@ -142,22 +144,22 @@ public class DIALService extends DeviceService implements Launcher {
         ServiceCommand<ResponseListener<Object>> command =
                 new ServiceCommand<ResponseListener<Object>>(getCommandProcessor(),
                         requestURL(appInfo.getName()), params, new ResponseListener<Object>() {
-            @Override
-            public void onError(ServiceCommandError error) {
-                Util.postError(listener, new ServiceCommandError(0, "Problem Launching app", null));
-            }
+                    @Override
+                    public void onError(ServiceCommandError error) {
+                        Util.postError(listener, new ServiceCommandError(0, "Problem Launching app", null));
+                    }
 
-            @Override
-            public void onSuccess(Object object) {
-                LaunchSession launchSession = LaunchSession.launchSessionForAppId(appInfo.getId());
-                launchSession.setAppName(appInfo.getName());
-                launchSession.setSessionId((String)object);
-                launchSession.setService(DIALService.this);
-                launchSession.setSessionType(LaunchSessionType.App);
+                    @Override
+                    public void onSuccess(Object object) {
+                        LaunchSession launchSession = LaunchSession.launchSessionForAppId(appInfo.getId());
+                        launchSession.setAppName(appInfo.getName());
+                        launchSession.setSessionId((String) object);
+                        launchSession.setService(DIALService.this);
+                        launchSession.setSessionType(LaunchSessionType.App);
 
-                Util.postSuccess(listener, launchSession);
-            }
-        });
+                        Util.postSuccess(listener, launchSession);
+                    }
+                });
 
         command.send();
     }
@@ -260,7 +262,7 @@ public class DIALService extends DeviceService implements Launcher {
 
             @Override
             public void onSuccess(Object response) {
-                String str = (String)response;
+                String str = (String) response;
                 String[] stateTAG = new String[2];
                 stateTAG[0] = "<state>";
                 stateTAG[1] = "</state>";
@@ -335,8 +337,7 @@ public class DIALService extends DeviceService implements Launcher {
     public void closeLaunchSession(LaunchSession launchSession, ResponseListener<Object> listener) {
         if (launchSession.getSessionType() == LaunchSessionType.App) {
             this.getLauncher().closeApp(launchSession, listener);
-        } else
-        {
+        } else {
             Util.postError(listener, new ServiceCommandError(-1, "Could not find a launcher associated with this LaunchSession", launchSession));
         }
     }
@@ -479,7 +480,9 @@ public class DIALService extends DeviceService implements Launcher {
         for (final String appID : registeredApps) {
             hasApplication(appID, new ResponseListener<Object>() {
 
-                @Override public void onError(ServiceCommandError error) { }
+                @Override
+                public void onError(ServiceCommandError error) {
+                }
 
                 @Override
                 public void onSuccess(Object object) {

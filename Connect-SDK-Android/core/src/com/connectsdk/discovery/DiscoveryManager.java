@@ -45,6 +45,7 @@ import android.util.Log;
 
 import com.amazon.whisperlink.android.util.RouteUtil;
 import com.connectsdk.DefaultPlatform;
+import com.connectsdk.LogPrint;
 import com.connectsdk.core.Util;
 import com.connectsdk.device.ConnectableDevice;
 import com.connectsdk.device.ConnectableDeviceListener;
@@ -182,6 +183,7 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
      @endcode
      */
     public static synchronized void init(Context context) {
+
         instance = new DiscoveryManager(context);
     }
 
@@ -229,6 +231,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
      * you should use DiscoveryManager.getInstance() instead.
      */
     public DiscoveryManager(Context context, ConnectableDeviceStore connectableDeviceStore) {
+        LogPrint.appendLog("DiscoveryManager start");
+
         this.context = context;
         this.connectableDeviceStore = connectableDeviceStore;
 
@@ -258,6 +262,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
 
                     switch (networkInfo.getState()) {
                     case CONNECTED:
+                        LogPrint.appendLog("DiscoveryManager receiver CONNECTED");
+
                         if (mSearching) {
                             for (DiscoveryProvider provider : discoveryProviders) {
                                 provider.restart();
@@ -267,6 +273,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
                         break;
 
                     case DISCONNECTED:
+                        LogPrint.appendLog("DiscoveryManager receiver DISCONNECTED");
+
                         Log.w(Util.T, "Network connection is disconnected");
 
                         for (DiscoveryProvider provider : discoveryProviders) {
@@ -300,7 +308,10 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
     // @endcond
 
     private void registerBroadcastReceiver() {
+
         if (!isBroadcastReceiverRegistered) {
+            LogPrint.appendLog("registerBroadcastReceiver");
+
             isBroadcastReceiverRegistered = true;
 
             IntentFilter intentFilter = new IntentFilter();
@@ -357,6 +368,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
                 handleDeviceAdd(device);
             }
         }
+        LogPrint.appendLog("DiscoveryManager setCapabilityFilters all "+allDevices + " compatible "+compatibleDevices);
+
     }
 
     /**
@@ -401,6 +414,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
      */
     @SuppressWarnings("unchecked")
     public void registerDefaultDeviceTypes() {
+        LogPrint.appendLog("DiscoveryManager registerDefaultDeviceTypes ");
+
         final HashMap<String, String> devicesList = DefaultPlatform.getDeviceServiceMap();
 
         for (HashMap.Entry<String, String> entry : devicesList.entrySet()) {
@@ -535,6 +550,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
      * Start scanning for devices on the local network.
      */
     public void start() {
+        LogPrint.appendLog("DiscoveryManager start  l "+discoveryProviders.size());
+
         if (mSearching)
             return;
 
@@ -622,6 +639,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
 
     // @cond INTERNAL
     public void handleDeviceAdd(ConnectableDevice device) {
+        LogPrint.appendLog("DiscoveryManager handleDeviceAdd start "+device + " l "+compatibleDevices.values());
+
         if (!deviceIsCompatible(device)) 
             return;
 
@@ -630,9 +649,13 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
         for (DiscoveryManagerListener listenter: discoveryListeners) {
             listenter.onDeviceAdded(this, device);
         }
+        LogPrint.appendLog("DiscoveryManager handleDeviceAdd end "+device + " l "+compatibleDevices.values());
+
     }
 
     public void handleDeviceUpdate(ConnectableDevice device) {
+        LogPrint.appendLog("DiscoveryManager handleDeviceUpdate " +device);
+
         String devKey = getDeviceKey(device);
 
         if (deviceIsCompatible(device)) {
@@ -753,6 +776,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
     public void onServiceAdded(DiscoveryProvider provider, ServiceDescription serviceDescription) {
         Log.d(Util.T, "Service added: " + serviceDescription.getFriendlyName() + " (" + serviceDescription.getServiceID() + ")");
 
+        LogPrint.appendLog("DiscoveryManager onServiceAdded " + serviceDescription.getFriendlyName() + " (" + serviceDescription.getServiceID() + ")");
+
         String devKey = getDeviceKey(serviceDescription);
         boolean deviceIsNew = !allDevices.containsKey(devKey);
         ConnectableDevice device = null;
@@ -802,6 +827,7 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
 
     @Override
     public void onServiceRemoved(DiscoveryProvider provider, ServiceDescription serviceDescription) {
+        LogPrint.appendLog("DiscoveryManager onServiceRemoved ");
         if (serviceDescription == null) {
             Log.w(Util.T, "onServiceRemoved: unknown service description");
 
@@ -830,6 +856,8 @@ public class DiscoveryManager implements ConnectableDeviceListener, DiscoveryPro
     @Override
     public void onServiceDiscoveryFailed(DiscoveryProvider provider, ServiceCommandError error) {
         Log.w(Util.T, "DiscoveryProviderListener, Service Discovery Failed");
+        LogPrint.appendLog("DiscoveryManager onServiceDiscoveryFailed ");
+
     } 
 
     @SuppressWarnings("unchecked")

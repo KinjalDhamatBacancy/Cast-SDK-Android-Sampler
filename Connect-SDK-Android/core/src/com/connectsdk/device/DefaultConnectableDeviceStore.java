@@ -1,10 +1,10 @@
 /*
  * DefaultConnectableDeviceStore
  * Connect SDK
- * 
+ *
  * Copyright (c) 2014 LG Electronics.
  * Created by Hyun Kook Khang on 19 Jan 2014
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,20 @@
 
 package com.connectsdk.device;
 
+import android.content.Context;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Environment;
+
+import com.connectsdk.LogPrint;
+import com.connectsdk.core.Util;
+import com.connectsdk.service.DeviceService;
+import com.connectsdk.service.config.ServiceConfig;
+import com.connectsdk.service.config.ServiceDescription;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -28,19 +42,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Environment;
-
-import com.connectsdk.core.Util;
-import com.connectsdk.service.DeviceService;
-import com.connectsdk.service.config.ServiceConfig;
-import com.connectsdk.service.config.ServiceDescription;
 
 /**
  * Default implementation of ConnectableDeviceStore. It stores data in a file in application
@@ -81,11 +82,17 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
 
     // @endcond
 
-    /** Date (in seconds from 1970) that the ConnectableDeviceStore was created. */
+    /**
+     * Date (in seconds from 1970) that the ConnectableDeviceStore was created.
+     */
     public long created;
-    /** Date (in seconds from 1970) that the ConnectableDeviceStore was last updated. */
+    /**
+     * Date (in seconds from 1970) that the ConnectableDeviceStore was last updated.
+     */
     public long updated;
-    /** Current version of the ConnectableDeviceStore, may be necessary for migrations */
+    /**
+     * Current version of the ConnectableDeviceStore, may be necessary for migrations
+     */
     public int version;
 
     /**
@@ -101,12 +108,13 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
 
     private boolean waitToWrite = false;
 
-    public DefaultConnectableDeviceStore(Context context) { 
+    public DefaultConnectableDeviceStore(Context context) {
+        LogPrint.appendLog("DefaultConnectableDeviceStore");
+
         String dirPath;
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             dirPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        }
-        else {
+        } else {
             dirPath = Environment.MEDIA_UNMOUNTED;
         }
         fileFullPath = dirPath + DIRPATH + FILENAME;
@@ -114,6 +122,8 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
         try {
             fileFullPath = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).applicationInfo.dataDir + "/" + FILENAME;
         } catch (NameNotFoundException e) {
+            LogPrint.appendLog("DefaultConnectableDeviceStore error " + e);
+
             e.printStackTrace();
         }
 
@@ -202,7 +212,7 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
     public JSONObject getStoredDevices() {
         JSONObject ret = new JSONObject();
 
-        for (java.util.Map.Entry<String, JSONObject> entry: storedDevices.entrySet()) {
+        for (java.util.Map.Entry<String, JSONObject> entry : storedDevices.entrySet()) {
             try {
                 ret.put(entry.getKey(), entry.getValue());
             } catch (JSONException e) {
@@ -248,7 +258,7 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
         JSONObject foundDevice = storedDevices.get(uuid);
 
         if (foundDevice == null) {
-            for (JSONObject device: storedDevices.values()) {
+            for (JSONObject device : storedDevices.values()) {
                 JSONObject services = device.optJSONObject(ConnectableDevice.KEY_SERVICES);
 
                 if (services != null && services.has(uuid))
@@ -261,7 +271,7 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
     @Override
     public ServiceConfig getServiceConfig(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
-            return null;            
+            return null;
         }
         String uuid = serviceDescription.getUUID();
         if (uuid == null || uuid.length() == 0) {
@@ -287,6 +297,8 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
 
     // @cond INTERNAL
     private void load() {
+        LogPrint.appendLog("DefaultConnectableDeviceStore load start " );
+
         String line;
 
         BufferedReader in = null;
@@ -329,11 +341,15 @@ public class DefaultConnectableDeviceStore implements ConnectableDeviceStore {
 
                 // it is likely that the device store has been corrupted
                 encounteredException = true;
+                LogPrint.appendLog("DefaultConnectableDeviceStore load error  1" + e );
+
             } catch (JSONException e) {
                 e.printStackTrace();
 
                 // it is likely that the device store has been corrupted
                 encounteredException = true;
+                LogPrint.appendLog("DefaultConnectableDeviceStore load error 2 " + e );
+
             }
 
             if (encounteredException && storedDevices == null) {
